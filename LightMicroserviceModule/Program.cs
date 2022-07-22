@@ -1,9 +1,20 @@
 using LightMicroserviceModule.Definitions.Base;
+using Serilog;
+using Serilog.Events;
 
 try
 {
+    // configure logger (Serilog)
+    Log.Logger = new LoggerConfiguration()
+        .MinimumLevel.Debug()
+        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .CreateLogger();
+    
     // created builder
     var builder = WebApplication.CreateBuilder(args);
+    builder.Host.UseSerilog();
 
     builder.Services.AddDefinitions(builder, typeof(Program));
 
@@ -18,10 +29,11 @@ try
 }
 catch (Exception ex)
 {
+    Log.Fatal(ex, "Host terminated unexpectedly");
     return 1;
 }
 
 finally
 {
-    
+    Log.CloseAndFlush();
 }
