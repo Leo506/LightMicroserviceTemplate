@@ -2,6 +2,10 @@ using Calabonga.OperationResults;
 
 namespace LightMicroserviceModule.DbBase;
 
+/// <summary>
+/// Abstraction for work with database
+/// </summary>
+/// <typeparam name="T">Model type</typeparam>
 public interface IDbWorker<T>
 {
     Task<IEnumerable<T>> GetAllRecords();

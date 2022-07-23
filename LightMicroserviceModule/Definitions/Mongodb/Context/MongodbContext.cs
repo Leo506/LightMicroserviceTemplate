@@ -5,6 +5,10 @@ using MongoDB.Driver;
 
 namespace LightMicroserviceModule.Definitions.Mongodb.Context;
 
+/// <summary>
+/// Realization of IMongoDbContext for work with mongodb collection
+/// </summary>
+/// <typeparam name="T">Model type</typeparam>
 public class MongodbContext<T> : IMongoDbContext<T>
 {
     private readonly IMongoCollection<T> _collection;

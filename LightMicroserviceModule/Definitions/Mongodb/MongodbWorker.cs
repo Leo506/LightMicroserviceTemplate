@@ -7,6 +7,10 @@ using MongoDB.Driver.Linq;
 
 namespace LightMicroserviceModule.Definitions.Mongodb;
 
+/// <summary>
+/// Realization of IDbWorker for easy work with mongodb
+/// </summary>
+/// <typeparam name="T">Model type</typeparam>
 public class MongodbWorker<T> : IDbWorker<T>
 {
     private readonly ILogger<MongodbWorker<T>> _logger;
