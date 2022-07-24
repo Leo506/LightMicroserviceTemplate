@@ -10,7 +10,7 @@ public class KafkaProducer<Tk, Tv> : IEventProducer<Tk, Tv>, IDisposable
     private readonly IProducer<Tk, Tv> _producer;
     private readonly string _topic;
 
-    public KafkaProducer(KafkaConfig config, IProducer<Tk, Tv> producer)
+    public KafkaProducer(KafkaProducerConfig config, IProducer<Tk, Tv> producer)
     {
         _producer = producer;
         _topic = config.Topic;

@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using LightMicroserviceModule.Definitions.Base;
 using LightMicroserviceModule.Definitions.Kafka.Config;
+using LightMicroserviceModule.Definitions.Kafka.Consumer.Handlers;
 using LightMicroserviceModule.Definitions.Kafka.Models;
 using LightMicroserviceModule.Definitions.Kafka.Producer;
 using LightMicroserviceModule.EventsBase;
@@ -15,9 +16,13 @@ public class KafkaDefinition : AppDefinition
         if (!isEnableKafka)
             return;
 
-        var kafkaConfig = configuration.GetSection("Kafka:Config").Get<KafkaConfig>();
+        var producerConfig = configuration.GetSection("Kafka:ProducerConfig").Get<KafkaProducerConfig>();
 
-        services.AddKafkaProducer<Null, EventPersonModel>(kafkaConfig, new PersonSerializer());
+        services.AddKafkaProducer<Null, EventPersonModel>(producerConfig, new PersonSerializer());
+
+        var consumerConfig = configuration.GetSection("Kafka:ConsumerConfig").Get<KafkaConsumerConfig>();
+
+        services.AddKafkaConsumer(consumerConfig, new PersonDeserializer(), new TestHandler());
     }
 
 
