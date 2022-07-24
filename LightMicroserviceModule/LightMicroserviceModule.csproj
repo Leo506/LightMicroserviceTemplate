@@ -27,5 +27,9 @@
     <ItemGroup>
         <Protobuf Include="Protos\greet.proto" GrpcServices="Server" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Content Include=".template.config\template.json" />
+    </ItemGroup>
 
 </Project>
