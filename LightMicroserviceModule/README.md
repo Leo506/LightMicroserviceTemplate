@@ -13,3 +13,4 @@
 + Библиотеки для работы с grpc
 + ```Serilog```
 + ```AuthoMapper```
++ ```Kafka```
