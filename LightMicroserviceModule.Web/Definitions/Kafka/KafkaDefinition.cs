@@ -1,4 +1,5 @@
 using Confluent.Kafka;
+using GrpcServices;
 using LightMicroserviceModule.Definitions.Base;
 using LightMicroserviceModule.Definitions.Kafka.Handlers;
 using LightMicroserviceModule.Definitions.Kafka.Models;
@@ -17,11 +18,11 @@ public class KafkaDefinition : AppDefinition
 
         var producerConfig = configuration.GetSection("Kafka:ProducerConfig").Get<KafkaProducerConfig>();
 
-        services.AddKafkaProducer<Null, EventPersonModel>(producerConfig, new PersonSerializer());
+        services.AddKafkaProducer<Null, Request>(producerConfig);
 
         var consumerConfig = configuration.GetSection("Kafka:ConsumerConfig").Get<KafkaConsumerConfig>();
 
-        services.AddKafkaConsumer(consumerConfig, new PersonDeserializer(), new TestHandler());
+        services.AddKafkaConsumer<Null, Request>(consumerConfig, new RequestHadler());
     }
 
 
@@ -29,15 +30,14 @@ public class KafkaDefinition : AppDefinition
     {
         app.MapPost("/kafka/test", async context =>
         {
-            var person = new EventPersonModel()
+            var request = new Request()
             {
-                FirstName = context.Request.Query["first_name"],
-                LastName = context.Request.Query["last_name"]
+                Name = "Some name"
             };
 
-            var producer = app.Services.GetRequiredService<IEventProducer<Null, EventPersonModel>>();
+            var producer = app.Services.GetRequiredService<IEventProducer<Null, Request>>();
 
-            var result = await producer.ProduceAsync(null, person);
+            var result = await producer.ProduceAsync(null, request);
 
             if (result.Ok)
                 Results.Ok();
