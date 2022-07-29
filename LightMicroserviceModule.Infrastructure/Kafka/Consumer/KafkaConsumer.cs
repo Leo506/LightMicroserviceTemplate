@@ -5,15 +5,15 @@ using Microsoft.Extensions.Hosting;
 
 namespace LightMicroserviceModule.Infrastructure.Kafka.Consumer;
 
-public class KafkaConsumer<Tk, Tv> : IHostedService, IDisposable
+public class KafkaConsumer<TKey, TValue> : IHostedService, IDisposable
 {
-    private readonly IConsumer<Tk, Tv> _consumer;
+    private readonly IConsumer<TKey, TValue> _consumer;
 
-    private readonly IEventHandler<Tk, Tv> _handler;
+    private readonly IEventHandler<TKey, TValue> _handler;
 
     private readonly string _topic;
     
-    public KafkaConsumer(KafkaConsumerConfig config, IConsumer<Tk, Tv> consumer, IEventHandler<Tk, Tv> handler)
+    public KafkaConsumer(KafkaConsumerConfig config, IConsumer<TKey, TValue> consumer, IEventHandler<TKey, TValue> handler)
     {
         _consumer = consumer;
         _topic = config.Topic;
@@ -33,9 +33,11 @@ public class KafkaConsumer<Tk, Tv> : IHostedService, IDisposable
     {
         _consumer.Subscribe(_topic);
 
+        ConsumeResult<TKey, TValue> result = null;
+
         while (!token.IsCancellationRequested)
         {
-            var result = _consumer.Consume(TimeSpan.FromMilliseconds(1000));
+            result = _consumer.Consume(TimeSpan.FromMilliseconds(1000));
             if (result == null)
                 continue;
 
@@ -43,6 +45,15 @@ public class KafkaConsumer<Tk, Tv> : IHostedService, IDisposable
             await _handler.ProcessAsync(result.Message);
             _consumer.Commit(result);
         }
+        
+        if (result == null)
+            return;
+
+        // We do commit before invoke close method (if autocommit is disable)
+        // because Close() method informs consumer group coordinator about changing
+        // consumers number so after that rebalancing starts 
+        _consumer.Commit(result);
+        _consumer.Close();
     }
 
     public void Dispose()
