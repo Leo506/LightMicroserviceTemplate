@@ -102,4 +102,34 @@ public class MongodbWorker<T> : IDbWorker<T>
 
         return result;
     }
+
+    public async Task<OperationResult<bool>> DeleteRecords(Func<T, bool> predicate)
+    {
+        var result = new OperationResult<bool>();
+
+        long totalDeleted = 0;
+        try
+        {
+            var deletingItems = _context.Where(predicate);
+
+            foreach (var deletingItem in deletingItems)
+            {
+                var id = typeof(T).GetProperty("Id")?.GetValue(deletingItem);
+                var filter = Builders<T>.Filter.Eq("_id", id);
+
+                var deletingResult = await _context.GetCollection().DeleteOneAsync(filter);
+                totalDeleted += deletingResult.DeletedCount;
+            }
+            
+            _logger.LogInformation($"Deleted {totalDeleted} items");
+            result.Result = true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            result.AddError(e);
+        }
+        
+        return result;
+    }
 }
