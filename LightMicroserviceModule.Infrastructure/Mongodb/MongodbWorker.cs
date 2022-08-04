@@ -2,7 +2,8 @@ using Calabonga.OperationResults;
 using LightMicroserviceModule.Domain.DbBase;
 using LightMicroserviceModule.Infrastructure.Mongodb.Context;
 using Microsoft.Extensions.Logging;
-
+using MongoDB.Bson;
+using MongoDB.Driver;
 namespace LightMicroserviceModule.Infrastructure.Mongodb;
 
 /// <summary>
@@ -64,6 +65,40 @@ public class MongodbWorker<T> : IDbWorker<T>
             result.Result = false;
             result.AddError(e.Message);
         }
+
+        return result;
+    }
+
+    public async Task<OperationResult<bool>> UpdateRecords(Func<T, bool> predicate, Action<T> updateFunc)
+    {
+        OperationResult<bool> result = new OperationResult<bool>();
+
+        long totalUpdated = 0;
+
+        try
+        {
+            var updatingItems = _context.Where(predicate);
+            
+            foreach (var updatingItem in updatingItems)
+            {
+                var id = typeof(T).GetProperty("Id")?.GetValue(updatingItem);
+                var filter = Builders<T>.Filter.Eq("_id", id);
+
+                updateFunc(updatingItem);
+
+                var replacementResult = await _context.GetCollection().ReplaceOneAsync(filter, updatingItem);
+                totalUpdated += replacementResult.ModifiedCount;
+            }
+
+            _logger.LogInformation($"Updated {totalUpdated} records");
+            result.Result = true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            result.AddError(e);
+        }
+
 
         return result;
     }

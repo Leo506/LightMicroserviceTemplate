@@ -15,4 +15,6 @@ public interface IDbWorker<T>
     Task<OperationResult<bool>> AddNewRecord(T record);
 
     Task<OperationResult<bool>> AddNewRecordsRange(IEnumerable<T> records);
+
+    Task<OperationResult<bool>> UpdateRecords(Func<T, bool> predicate, Action<T> updateFunc);
 }
