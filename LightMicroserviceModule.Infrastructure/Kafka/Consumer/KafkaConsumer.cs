@@ -37,7 +37,7 @@ public class KafkaConsumer<TKey, TValue> : IHostedService, IDisposable
 
         while (!token.IsCancellationRequested)
         {
-            result = _consumer.Consume(TimeSpan.FromMilliseconds(1000));
+            result = _consumer.Consume(token);
             if (result == null)
                 continue;
 

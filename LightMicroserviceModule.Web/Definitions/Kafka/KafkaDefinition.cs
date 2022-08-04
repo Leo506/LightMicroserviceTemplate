@@ -22,7 +22,7 @@ public class KafkaDefinition : AppDefinition
 
         var consumerConfig = configuration.GetSection("Kafka:ConsumerConfig").Get<KafkaConsumerConfig>();
 
-        services.AddKafkaConsumer<Null, Request>(consumerConfig, new RequestHadler());
+        services.AddKafkaConsumer<Null, Request>(consumerConfig);
     }
 
 
