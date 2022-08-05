@@ -40,8 +40,7 @@ public class MongoRepository<T> : IRepository<T> where T : IMongoModel
 
         try
         {
-            var cursor = await _collection.FindAsync(new BsonDocument("_id", id));
-            var entity = cursor.Current.FirstOrDefault();
+            var entity = await _collection.Find(_ => _.Id == id).FirstOrDefaultAsync();
             if (entity == null)
             {
                 result.AddError(new Exception($"No entities with this id: {id}"));
