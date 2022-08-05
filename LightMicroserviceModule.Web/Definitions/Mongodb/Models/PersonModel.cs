@@ -1,14 +1,14 @@
+using LightMicroserviceModule.Infrastructure.Mongodb;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace LightMicroserviceModule.Definitions.Mongodb.Models;
 
-public class PersonModel
+public class PersonModel : IMongoModel
 {
     [BsonId]
-    [BsonIgnoreIfNull]
-    public ObjectId Id { get; set; }
-
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id { get; set; }
     [BsonElement("first_name")] public string FirstName { get; set; } = null!;
 
     [BsonElement("last_name")] public string LastName { get; set; } = null!;
@@ -16,4 +16,5 @@ public class PersonModel
     [BsonElement("skills")]
     [BsonIgnoreIfNull]
     public string[] Skills { get; set; }
+
 }
